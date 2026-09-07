@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Crossroads — Evergreen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --parchment:#F7F2E7;
+    --ink:#2B2A22;
+    --ink-soft:#565246;
+    --gold:#B5872E;
+    --gold-soft:#D6B15C;
+    --deep:#20303A;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    background:var(--deep);
+    color:var(--ink);
+    font-family:'Jost',sans-serif;
+    font-weight:300;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+    overflow:hidden;
+  }
+  h1,.display{font-family:'Cormorant Garamond',serif;}
+
+  .topbar{
+    background:var(--deep);
+    color:var(--parchment);
+    padding:14px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    flex-shrink:0;
+  }
+  .topbar .title{
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:1.1rem;
+  }
+  .topbar .stage-label{
+    font-size:0.72rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--gold-soft);
+  }
+
+  .stage{
+    flex:1;
+    position:relative;
+    overflow:hidden;
+    background:#000;
+  }
+  .slide{
+    display:none;
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+  }
+  .slide.active{display:block;}
+
+  /* video slide */
+  .video-slide iframe{
+    width:100%;
+    height:100%;
+    border:none;
+    display:block;
+    background:#000;
+  }
+
+  /* doorway / embed slide */
+  .embed-slide{
+    background:var(--parchment);
+    overflow:auto;
+    padding:3vh 3vw;
+    text-align:center;
+  }
+  .eyebrow{
+    font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:0.7em;
+  }
+  .embed-slide h1{
+    font-weight:700;
+    font-size:clamp(1.5rem,3.2vw,2.2rem);
+    color:var(--deep);
+    margin-bottom:0.8em;
+  }
+  .embed-wrap{max-width:1180px;margin:0 auto;}
+  .embed-frame{
+    width:100%;
+    height:72vh;
+    border:none;
+    border-radius:10px;
+    box-shadow:0 12px 40px rgba(0,0,0,0.25);
+    background:#F7F2E7;
+  }
+
+  /* image-pause slide (slide 15) */
+  .pause-slide{
+    position:relative;
+    width:100%;
+    height:100%;
+    cursor:pointer;
+  }
+  .pause-slide img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  /* guided audio slide (slide 16) */
+  .audio-slide{
+    position:relative;
+    width:100%;
+    height:100%;
+  }
+  .audio-slide img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .audio-slide iframe{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    border:none;
+    display:none;
+  }
+  .play-btn{
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(32,48,58,0.85);
+    color:var(--parchment);
+    border:1px solid var(--gold-soft);
+    padding:18px 38px;
+    border-radius:32px;
+    font-family:'Jost',sans-serif;
+    font-size:1rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background 0.2s ease;
+  }
+  .play-btn:hover{background:var(--gold);color:var(--deep);}
+  .audio-caption{
+    position:absolute;
+    bottom:8%;
+    left:50%;
+    transform:translateX(-50%);
+    color:var(--parchment);
+    font-family:'Cormorant Garamond',serif;
+    font-style:italic;
+    font-size:1.1rem;
+    text-align:center;
+    text-shadow:0 2px 10px rgba(0,0,0,0.6);
+  }
+
+  .navbar{
+    background:var(--deep);
+    padding:14px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-top:1px solid rgba(255,255,255,0.08);
+    flex-shrink:0;
+  }
+  .nav-btn{
+    font-family:'Jost',sans-serif;
+    font-size:0.85rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--parchment);
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.25);
+    padding:10px 20px;
+    border-radius:24px;
+    cursor:pointer;
+    transition:background 0.2s ease, border-color 0.2s ease;
+  }
+  .nav-btn:hover:not(:disabled){
+    background:var(--gold);
+    border-color:var(--gold);
+    color:var(--deep);
+  }
+  .nav-btn:disabled{opacity:0.3;cursor:default;}
+  .dots{display:flex;gap:7px;}
+  .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.25);}
+  .dot.on{background:var(--gold);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="title">The Crossroads — Evergreen</div>
+  <div class="stage-label" id="stageLabel">Video 1</div>
+</div>
+
+<div class="stage">
+
+  <!-- 1: Video 1 -->
+  <div class="slide active video-slide" data-slide="1">
+    <iframe id="frame-v1" data-src="https://iframe.mediadelivery.net/embed/746703/e259885f-fbd3-4860-96f8-20a3902f2270?autoplay=true&loop=false&muted=false&preload=true&responsive=true" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+  </div>
+
+  <!-- 2: Doorway Check-In -->
+  <div class="slide embed-slide" data-slide="2">
+    <div class="eyebrow">The Doorway Check-In</div>
+    <h1>Notice how you're arriving today.</h1>
+    <div class="embed-wrap">
+      <iframe class="embed-frame" src="doorway-checkin.html" title="Doorway Check-In"></iframe>
+    </div>
+  </div>
+
+  <!-- 3: Video 2 -->
+  <div class="slide video-slide" data-slide="3">
+    <iframe id="frame-v2" data-src="https://iframe.mediadelivery.net/embed/746703/86c30bb0-8300-4cd9-82df-a5f2fdb602b3?autoplay=true&loop=false&muted=false&preload=true&responsive=true" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+  </div>
+
+  <!-- 4: Video 3 (Meet Your Crossroads) -->
+  <div class="slide video-slide" data-slide="4">
+    <iframe id="frame-v3" data-src="https://iframe.mediadelivery.net/embed/746703/b54472b2-9743-40a1-a511-b0a106c23880?autoplay=true&loop=false&muted=false&preload=true&responsive=true" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+  </div>
+
+  <!-- 5: Before You Continue (image pause, click to advance) -->
+  <div class="slide" data-slide="5">
+    <div class="pause-slide" id="pauseSlide">
+      <img src="slide15.png" alt="Before You Continue">
+    </div>
+  </div>
+
+  <!-- 6: Guided Experience audio (tap to play) -->
+  <div class="slide" data-slide="6">
+    <div class="audio-slide">
+      <img id="audioCover" src="slide16.png" alt="Guided Experience">
+      <button class="play-btn" id="playAudioBtn">▶ Begin When You're Ready</button>
+      <iframe id="frame-audio" allow="autoplay" style="display:none;"></iframe>
+    </div>
+  </div>
+
+  <!-- 7: Video 4 -->
+  <div class="slide video-slide" data-slide="7">
+    <div style="position:relative;width:100%;height:100%;">
+      <iframe id="frame-v4" data-src="https://iframe.mediadelivery.net/embed/746703/c173391d-ba0d-4686-9ef3-d3bc653cf326?autoplay=true&loop=false&muted=false&preload=true&responsive=true" loading="lazy" allow="autoplay; fullscreen" allowfullscreen></iframe>
+      <a href="https://www.skool.com/bodydialoguemethod/about" target="_blank" id="continueBtn" style="
+          position:absolute;
+          left:50%;
+          bottom:14%;
+          transform:translateX(-50%);
+          width:26%;
+          min-width:220px;
+          height:9%;
+          min-height:44px;
+          opacity:0;
+          pointer-events:none;
+          transition:opacity 0.8s ease;
+          border-radius:30px;
+          cursor:pointer;
+          background:rgba(255,0,0,0.15);
+        "></a>
+    </div>
+  </div>
+
+</div>
+
+<div class="navbar">
+  <button class="nav-btn" id="prevBtn" onclick="go(-1)">← Back</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-btn" id="nextBtn" onclick="go(1)">Next →</button>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+const labels = [
+  'Video 1 · Slides 1–4',
+  'Doorway Check-In',
+  'Video 2 · Slides 6–13',
+  'Video 3 · Meet Your Crossroads',
+  'Before You Continue',
+  'Guided Experience',
+  'Video 4 · Slides 17–23'
+];
+
+const dotsWrap = document.getElementById('dots');
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' on' : '');
+  dotsWrap.appendChild(d);
+});
+
+let video4Timer = null;
+const VIDEO4_DURATION = 429; // seconds, confirmed from file
+const VIDEO4_REVEAL_AT = VIDEO4_DURATION - 18; // fade the button in ~18s before the video ends
+
+const videoSlideMap = { 0: 'frame-v1', 2: 'frame-v2', 3: 'frame-v3', 6: 'frame-v4' };
+
+function loadOrUnloadVideos(){
+  Object.entries(videoSlideMap).forEach(([slideIndex, frameId]) => {
+    const el = document.getElementById(frameId);
+    const idx = parseInt(slideIndex, 10);
+    if(idx === current){
+      // Entering this slide: load its real source if not already loaded
+      if(!el.src){ el.src = el.dataset.src; }
+    } else {
+      // Leaving/not on this slide: fully unload so audio/video stops
+      if(el.src){ el.src = ''; }
+    }
+  });
+}
+
+function render(){
+  slides.forEach((s, i) => s.classList.toggle('active', i === current));
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === current));
+  document.getElementById('stageLabel').textContent = labels[current];
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === total - 1;
+
+  loadOrUnloadVideos();
+
+  // Start the reveal timer the first time Video 4's slide becomes active
+  if(current === 6 && !video4Timer){
+    video4Timer = setTimeout(() => {
+      const btn = document.getElementById('continueBtn');
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+    }, VIDEO4_REVEAL_AT * 1000);
+  }
+}
+
+function go(delta){
+  current = Math.min(total - 1, Math.max(0, current + delta));
+  render();
+}
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowRight') go(1);
+  if(e.key === 'ArrowLeft') go(-1);
+});
+
+// Bunny player emits postMessage events like {event:"ended", ...}
+// Map each iframe element to which slide index it should advance from.
+const frameSlideMap = {
+  'frame-v1': 0,
+  'frame-v2': 2,
+  'frame-v3': 3,
+  'frame-v4': 6
+};
+
+window.addEventListener('message', (e) => {
+  try{
+    const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+    if(!data || !data.event) return;
+    if(data.event === 'ended'){
+      // find which iframe this came from
+      for(const [id, slideIndex] of Object.entries(frameSlideMap)){
+        const el = document.getElementById(id);
+        if(el && el.contentWindow === e.source){
+          if(current === slideIndex){ go(1); }
+        }
+      }
+    }
+  }catch(err){ /* ignore non-JSON postMessages from other sources */ }
+});
+
+// Slide 5: click anywhere on the "Before You Continue" image to advance
+document.getElementById('pauseSlide').addEventListener('click', () => {
+  go(1);
+});
+
+// Slide 6: tap-to-play guided audio
+document.getElementById('playAudioBtn').addEventListener('click', function(){
+  const frame = document.getElementById('frame-audio');
+  frame.src = 'https://iframe.mediadelivery.net/embed/746703/cf0b2989-f2f8-4d8c-9f0a-7a4cce571623?autoplay=true&loop=false&muted=false&preload=true&responsive=true';
+  frame.style.display = 'block';
+  this.style.display = 'none';
+});
+
+render();
+</script>
+
+</body>
+</html>
